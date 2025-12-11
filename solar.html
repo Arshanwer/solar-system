@@ -258,6 +258,102 @@
 				background-color: rgba(255, 255, 255, 0.5);
 			}
 
+		/* Child-friendly planet buttons */
+		.planet-btn {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 4px;
+			padding: 12px 16px;
+			font-size: 14px;
+			border-radius: 12px;
+			min-width: 100px;
+			border: 2px solid;
+			box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+			transition: all 0.3s ease;
+			cursor: pointer;
+			color: white;
+		}
+
+		.planet-btn:active {
+			transform: scale(0.95);
+		}
+
+		.planet-emoji {
+			font-size: 28px;
+			line-height: 1;
+		}
+
+		.planet-name {
+			font-size: 13px;
+			font-weight: 600;
+		}
+
+		/* Individual planet colors with gradients */
+		.planet-btn.sun {
+			background: linear-gradient(135deg, #FFAA00, #FF6B00);
+			border-color: #FFD700;
+		}
+		.planet-btn.mercury {
+			background: linear-gradient(135deg, #999999, #666666);
+			border-color: #CCCCCC;
+		}
+		.planet-btn.venus {
+			background: linear-gradient(135deg, #FFC870, #FFB84D);
+			border-color: #FFD700;
+		}
+		.planet-btn.earth {
+			background: linear-gradient(135deg, #4A90E2, #2E5C8A);
+			border-color: #6CA6FF;
+		}
+		.planet-btn.moon {
+			background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+			border-color: #E0E0E0;
+		}
+		.planet-btn.mars {
+			background: linear-gradient(135deg, #FF6B4A, #CC4A2E);
+			border-color: #FF8866;
+		}
+		.planet-btn.jupiter {
+			background: linear-gradient(135deg, #FFB366, #FF9933);
+			border-color: #FFCC88;
+		}
+		.planet-btn.saturn {
+			background: linear-gradient(135deg, #FFD700, #CCAA00);
+			border-color: #FFEE99;
+		}
+		.planet-btn.uranus {
+			background: linear-gradient(135deg, #4FD0E0, #00A0C0);
+			border-color: #7FDDEE;
+		}
+		.planet-btn.neptune {
+			background: linear-gradient(135deg, #4169E1, #2048A0);
+			border-color: #5A7FFF;
+		}
+		.planet-btn.free-roam {
+			background: linear-gradient(135deg, #9B59B6, #8E44AD);
+			border-color: #BB77DD;
+		}
+
+		/* Fun animations */
+		@keyframes bounce {
+			0%, 100% { transform: scale(1); }
+			50% { transform: scale(1.1); }
+		}
+
+		@keyframes glow {
+			0%, 100% { box-shadow: 0 0 10px rgba(255,255,255,0.3); }
+			50% { box-shadow: 0 0 20px rgba(255,255,255,0.6); }
+		}
+
+		.planet-btn.active {
+			animation: glow 2s ease-in-out infinite;
+		}
+
+		.planet-btn:active {
+			animation: bounce 0.3s ease;
+		}
+
 			/* Responsive information panel */
 			.info-panel {
 				position: absolute;
@@ -302,6 +398,27 @@
 			.info-panel .close-btn:hover {
 				color: #8af;
 			}
+
+		/* Child-friendly info panel enhancements */
+		.info-panel p {
+			margin: 8px 0;
+			line-height: 1.6;
+		}
+
+		.info-panel strong {
+			color: #FFD700;
+			font-size: 15px;
+		}
+
+		.info-panel h3 {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.info-icon {
+			font-size: 20px;
+		}
 
 			/* Responsive distance indicator */
 			.distance-indicator {
@@ -457,6 +574,48 @@
 					font-size: 14px;
 				}
 			}
+
+		/* iPad and tablet optimizations */
+		@media (min-width: 768px) and (max-width: 1024px) {
+			.planet-btn {
+				min-width: 110px;
+				padding: 14px 18px;
+			}
+			
+			.planet-emoji {
+				font-size: 32px;
+			}
+			
+			.planet-name {
+				font-size: 14px;
+			}
+			
+			.controls-panel {
+				max-width: 850px;
+				gap: 10px;
+			}
+			
+			.time-controls button,
+			.shadow-controls label {
+				font-size: 15px;
+				padding: 8px 12px;
+			}
+			
+			.zoom-controls button {
+				width: 60px;
+				height: 60px;
+				font-size: 24px;
+			}
+			
+			.info-panel {
+				font-size: 16px;
+				max-width: 400px;
+			}
+			
+			.info-panel h3 {
+				font-size: 20px;
+			}
+		}
 		</style>
 	</head>
 	<body>
@@ -498,11 +657,11 @@
 		<div class="left-controls">
 			<div class="time-controls">
 				<h4>Time Control</h4>
-				<button id="pause">Pause</button>
-				<button id="slow">0.5x</button>
-				<button id="normal" class="active">1x</button>
-				<button id="fast">2x</button>
-				<button id="faster">5x</button>
+			<button id="pause">⏸️ Pause</button>
+			<button id="slow">🐌 Slow</button>
+			<button id="normal" class="active">▶️ Normal</button>
+			<button id="fast">⏩ Fast</button>
+			<button id="faster">⚡ Super Fast</button>
 				<div class="time-display">
 					Speed: <span id="speed-display">1x</span>
 				</div>
@@ -512,24 +671,63 @@
 				<h4>Visual Options</h4>
 				<div class="shadow-toggle">
 					<input type="checkbox" id="shadows-toggle" checked />
-					<label for="shadows-toggle">Realistic Shadows</label>
+				<label for="shadows-toggle">☀️ Realistic Lighting</label>
 				</div>
 			</div>
 
 			<div class="zoom-controls">
-				<button id="zoom-in">+</button>
-				<button id="zoom-out">-</button>
+			<button id="zoom-in">🔍+</button>
+			<button id="zoom-out">🔍-</button>
 			</div>
 		</div>
 
 		<div class="controls-panel">
-			<button id="focus-sun">Focus on Sun</button>
-			<button id="focus-earth">Focus on Earth</button>
-			<button id="focus-moon">Focus on Moon</button>
-			<button id="focus-mars">Focus on Mars</button>
-			<button id="focus-jupiter">Focus on Jupiter</button>
-			<button id="free-roam">Free Roam</button>
+			<button id="focus-sun" class="planet-btn sun">
+				<span class="planet-emoji">☀️</span>
+				<span class="planet-name">Sun</span>
+			</button>
+			<button id="focus-mercury" class="planet-btn mercury">
+				<span class="planet-emoji">☿️</span>
+				<span class="planet-name">Mercury</span>
+			</button>
+			<button id="focus-venus" class="planet-btn venus">
+				<span class="planet-emoji">♀️</span>
+				<span class="planet-name">Venus</span>
+			</button>
+			<button id="focus-earth" class="planet-btn earth">
+				<span class="planet-emoji">🌍</span>
+				<span class="planet-name">Earth</span>
+			</button>
+			<button id="focus-moon" class="planet-btn moon">
+				<span class="planet-emoji">🌙</span>
+				<span class="planet-name">Moon</span>
+			</button>
+			<button id="focus-mars" class="planet-btn mars">
+				<span class="planet-emoji">♂️</span>
+				<span class="planet-name">Mars</span>
+			</button>
+			<button id="focus-jupiter" class="planet-btn jupiter">
+				<span class="planet-emoji">♃</span>
+				<span class="planet-name">Jupiter</span>
+			</button>
+			<button id="focus-saturn" class="planet-btn saturn">
+				<span class="planet-emoji">🪐</span>
+				<span class="planet-name">Saturn</span>
+			</button>
+			<button id="focus-uranus" class="planet-btn uranus">
+				<span class="planet-emoji">🌀</span>
+				<span class="planet-name">Uranus</span>
+			</button>
+			<button id="focus-neptune" class="planet-btn neptune">
+				<span class="planet-emoji">🔵</span>
+				<span class="planet-name">Neptune</span>
+			</button>
+			<button id="free-roam" class="planet-btn free-roam">
+				<span class="planet-emoji">🚀</span>
+				<span class="planet-name">Free Roam</span>
+			</button>
 		</div>
+
 
 		<div class="info-panel" id="info-panel">
 			<button class="close-btn" onclick="closeInfoPanel()">×</button>
@@ -641,15 +839,38 @@
 				EARTH_ROTATION_SPEED = 0.0005,
 				EARTH_ORBIT_SPEED = 0.0002;
 			const MOON_RADIUS = 0.27,
-				MOON_ORBIT_RADIUS = 60;
+			MOON_ORBIT_RADIUS = 60,
+			MOON_ORBIT_SPEED = 0.00268; // Moon orbits Earth in 27.3 days (13.4x faster than Earth's year)
+			const MERCURY_RADIUS = 0.383,
+				MERCURY_ORBIT_RADIUS = 19.5,
+				MERCURY_ROTATION_SPEED = 0.0000085,
+			MERCURY_ORBIT_SPEED = 0.00083; // Mercury orbits in 88 days (4.15x faster than Earth)
+			const VENUS_RADIUS = 0.95,
+				VENUS_ORBIT_RADIUS = 36,
+				VENUS_ROTATION_SPEED = -0.000004,
+			VENUS_ORBIT_SPEED = 0.000324; // Venus orbits in 225 days (1.62x faster than Earth)
 			const MARS_RADIUS = 0.53,
 				MARS_ORBIT_RADIUS = 75,
 				MARS_ROTATION_SPEED = 0.00045,
-				MARS_ORBIT_SPEED = 0.0001;
+			MARS_ORBIT_SPEED = 0.000106; // Mars orbits in 687 days (0.53x slower than Earth)
 			const JUPITER_RADIUS = 11,
 				JUPITER_ORBIT_RADIUS = 260,
 				JUPITER_ROTATION_SPEED = 0.001,
 				JUPITER_ORBIT_SPEED = 0.000017;
+			const SATURN_RADIUS = 9.45,
+				SATURN_ORBIT_RADIUS = 477,
+				SATURN_ROTATION_SPEED = 0.0011,
+				SATURN_ORBIT_SPEED = 0.0000068,
+				SATURN_RING_INNER_RADIUS = 11,
+				SATURN_RING_OUTER_RADIUS = 19;
+			const URANUS_RADIUS = 4.0,
+				URANUS_ORBIT_RADIUS = 960,
+				URANUS_ROTATION_SPEED = 0.00065,
+				URANUS_ORBIT_SPEED = 0.0000024;
+			const NEPTUNE_RADIUS = 3.88,
+				NEPTUNE_ORBIT_RADIUS = 1502.5,
+				NEPTUNE_ROTATION_SPEED = 0.0007,
+				NEPTUNE_ORBIT_SPEED = 0.0000012;
 			const SUN_RADIUS = 5,
 				SUN_DISTANCE = 50;
 
@@ -671,10 +892,21 @@
 				moon,
 				moonOrbitPivot,
 				sun,
+				mercury,
+				mercuryOrbitPivot,
+				venus,
+				venusOrbitPivot,
 				mars,
 				marsOrbitPivot,
 				jupiter,
 				jupiterOrbitPivot,
+				saturn,
+				saturnOrbitPivot,
+				saturnRing,
+				uranus,
+				uranusOrbitPivot,
+				neptune,
+				neptuneOrbitPivot,
 				starfield;
 			let timeMultiplier = 1;
 			let isAnimationPaused = false;
@@ -722,6 +954,20 @@
 					rotateSpeed: 0.3,
 					zoomSpeed: 0.8,
 				},
+				mercury: {
+					distance: 2,
+					minDistance: 1,
+					maxDistance: 20,
+					rotateSpeed: 0.8,
+					zoomSpeed: 1.2,
+				},
+				venus: {
+					distance: 3,
+					minDistance: 2,
+					maxDistance: 25,
+					rotateSpeed: 0.5,
+					zoomSpeed: 1.0,
+				},
 				earth: {
 					distance: 2,
 					minDistance: 3,
@@ -750,6 +996,27 @@
 					rotateSpeed: 0.3,
 					zoomSpeed: 0.8,
 				},
+				saturn: {
+					distance: 30,
+					minDistance: 20,
+					maxDistance: 100,
+					rotateSpeed: 0.3,
+					zoomSpeed: 0.7,
+				},
+				uranus: {
+					distance: 15,
+					minDistance: 10,
+					maxDistance: 60,
+					rotateSpeed: 0.4,
+					zoomSpeed: 0.9,
+				},
+				neptune: {
+					distance: 15,
+					minDistance: 10,
+					maxDistance: 60,
+					rotateSpeed: 0.4,
+					zoomSpeed: 0.9,
+				},
 				free: {
 					distance: 50,
 					minDistance: 0.1,
@@ -773,6 +1040,30 @@
 						"The Sun is like a giant lightbulb that lights up our whole planet!",
 					description:
 						"The Sun is our very own star! It's like a huge ball of fire that gives us light during the day and keeps us warm. Without the Sun, Earth would be dark and cold like a freezer!",
+				},
+				mercury: {
+					name: "Mercury ☿️",
+					type: "The Swift Planet",
+					size: "The smallest planet - only a bit bigger than our Moon!",
+					temperature: "VERY hot during the day and freezing cold at night!",
+					distance: "Closest planet to the Sun",
+					color: "Gray like the Moon, with lots of craters",
+					funFact:
+						"Mercury is the fastest planet - it zooms around the Sun in just 88 days!",
+					description:
+						"Mercury is the closest planet to the Sun and the smallest planet in our solar system! It has no air and is covered with craters like the Moon. During the day it's hotter than an oven, but at night it gets colder than a freezer because it has no atmosphere to keep it warm!",
+				},
+				venus: {
+					name: "Venus ♀️",
+					type: "Earth's Sister Planet",
+					size: "Almost the same size as Earth!",
+					temperature: "The HOTTEST planet - even hotter than Mercury!",
+					distance: "Between Mercury and Earth",
+					color: "Bright yellowish-white, covered in thick clouds",
+					funFact:
+						"Venus spins backwards! The Sun rises in the west and sets in the east!",
+					description:
+						"Venus is called Earth's sister planet because they're almost the same size! But Venus is VERY different - it's covered in thick, poisonous clouds and it's the hottest planet in our solar system. A day on Venus is longer than a year on Venus, and it spins the opposite way from most planets!",
 				},
 				earth: {
 					name: "Earth 🌍",
@@ -821,6 +1112,42 @@
 						"Jupiter is so big that all the other planets could fit inside it with room to spare!",
 					description:
 						"Jupiter is the biggest planet in our solar system! It's like a giant ball of gas with beautiful swirling clouds. It spins super fast - a day on Jupiter is only 10 hours! It has a big red spot that's actually a huge storm bigger than Earth!",
+				},
+				saturn: {
+					name: "Saturn 🪐",
+					type: "The Ringed Wonder",
+					size: "Almost as big as Jupiter - 9 times bigger than Earth!",
+					temperature: "Super cold - even colder than Jupiter!",
+					distance: "Nearly twice as far from the Sun as Jupiter",
+					color: "Pale golden yellow with beautiful icy rings!",
+					funFact:
+						"Saturn's rings are made of billions of pieces of ice and rock, some as small as a grain of sand and some as big as a house!",
+					description:
+						"Saturn is the most beautiful planet with its amazing rings! The rings are made of ice and rock that orbit around the planet. Saturn is so light that it could float in water if you had a bathtub big enough! It spins fast too - a day is only about 10.7 hours!",
+				},
+				uranus: {
+					name: "Uranus 🌀",
+					type: "The Sideways Planet",
+					size: "4 times bigger than Earth!",
+					temperature: "Freezing cold - one of the coldest planets!",
+					distance: "Nearly twice as far from the Sun as Saturn",
+					color: "Beautiful pale blue-green like a mint ice cream!",
+					funFact:
+						"Uranus rolls on its side like a ball! It spins sideways instead of upright like other planets!",
+					description:
+						"Uranus is a very special ice giant planet! It's tilted on its side so it rolls around the Sun instead of spinning upright. It's made mostly of ice and gas, and it has a beautiful blue-green color because of a gas called methane in its atmosphere. It's so far away that it takes 84 Earth years to go around the Sun once!",
+				},
+				neptune: {
+					name: "Neptune 🔵",
+					type: "The Windy Blue Giant",
+					size: "Almost as big as Uranus - 4 times bigger than Earth!",
+					temperature: "The coldest planet - colder than a freezer!",
+					distance: "The farthest planet from the Sun!",
+					color: "Deep beautiful blue like the ocean!",
+					funFact:
+						"Neptune has the strongest winds in the whole solar system - they blow faster than a race car!",
+					description:
+						"Neptune is the farthest planet from the Sun and the windiest! It's a beautiful deep blue color because of methane gas in its thick atmosphere. The winds on Neptune are so strong they can blow at 1,200 miles per hour - that's faster than the speed of sound! It takes Neptune 165 Earth years to travel around the Sun once!",
 				},
 			};
 
@@ -881,6 +1208,54 @@
 
 				const ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
 				scene.add(ambientLight);
+
+				// --- Mercury ---
+				mercuryOrbitPivot = new THREE.Object3D();
+				sun.add(mercuryOrbitPivot);
+				const mercuryGeometry = new THREE.SphereGeometry(
+					MERCURY_RADIUS,
+					32,
+					32
+				);
+				const mercuryTexture = textureLoader.load(
+					"textures/2k_mercury.jpg"
+				);
+				const mercuryMaterial = new THREE.MeshPhongMaterial({
+					map: mercuryTexture,
+					emissiveMap: mercuryTexture,
+					emissive: 0xffffff,
+					emissiveIntensity: 0.06,
+					shininess: 0,
+					color: 0xbbbbbb,
+				});
+				mercury = new THREE.Mesh(mercuryGeometry, mercuryMaterial);
+				mercury.position.x = MERCURY_ORBIT_RADIUS;
+				mercury.userData = { type: "mercury" };
+				mercuryOrbitPivot.add(mercury);
+
+				// --- Venus ---
+				venusOrbitPivot = new THREE.Object3D();
+				sun.add(venusOrbitPivot);
+				const venusGeometry = new THREE.SphereGeometry(
+					VENUS_RADIUS,
+					64,
+					64
+				);
+				const venusTexture = textureLoader.load(
+					"textures/2k_venus.jpg"
+				);
+				const venusMaterial = new THREE.MeshPhongMaterial({
+					map: venusTexture,
+					emissiveMap: venusTexture,
+					emissive: 0xffffff,
+					emissiveIntensity: 0.08,
+					shininess: 0,
+					color: 0xbbbbbb,
+				});
+				venus = new THREE.Mesh(venusGeometry, venusMaterial);
+				venus.position.x = VENUS_ORBIT_RADIUS;
+				venus.userData = { type: "venus" };
+				venusOrbitPivot.add(venus);
 
 				// --- Earth ---
 				const earthGeometry = new THREE.SphereGeometry(
@@ -981,6 +1356,111 @@
 				jupiter.userData = { type: "jupiter" };
 				jupiterOrbitPivot.add(jupiter);
 
+				// --- Saturn ---
+				saturnOrbitPivot = new THREE.Object3D();
+				sun.add(saturnOrbitPivot);
+				const saturnGeometry = new THREE.SphereGeometry(
+					SATURN_RADIUS,
+					64,
+					64
+				);
+				const saturnTexture = textureLoader.load(
+					"textures/2k_saturn.jpg"
+				);
+				const saturnMaterial = new THREE.MeshPhongMaterial({
+					map: saturnTexture,
+					emissiveMap: saturnTexture,
+					emissive: 0xffffff,
+					emissiveIntensity: 0.05,
+					shininess: 0,
+					color: 0xbbbbbb,
+				});
+				saturn = new THREE.Mesh(saturnGeometry, saturnMaterial);
+				saturn.position.x = SATURN_ORBIT_RADIUS;
+				saturn.userData = { type: "saturn" };
+				saturnOrbitPivot.add(saturn);
+
+				// Saturn's Rings
+				const ringGeometry = new THREE.RingGeometry(
+					SATURN_RING_INNER_RADIUS,
+					SATURN_RING_OUTER_RADIUS,
+					64
+				);
+
+				// Fix UV coordinates for proper texture mapping
+				const pos = ringGeometry.attributes.position;
+				const uv = ringGeometry.attributes.uv;
+				for (let i = 0; i < pos.count; i++) {
+					const x = pos.getX(i);
+					const y = pos.getY(i);
+					const len = Math.sqrt(x * x + y * y);
+					const u = (len - SATURN_RING_INNER_RADIUS) / (SATURN_RING_OUTER_RADIUS - SATURN_RING_INNER_RADIUS);
+					uv.setXY(i, u, 0);
+				}
+
+				const ringTexture = textureLoader.load(
+					"textures/2k_saturn_ring_alpha.png"
+				);
+				const ringMaterial = new THREE.MeshBasicMaterial({
+					map: ringTexture,
+					side: THREE.DoubleSide,
+					transparent: true,
+					opacity: 0.9,
+				});
+				saturnRing = new THREE.Mesh(ringGeometry, ringMaterial);
+				saturnRing.rotation.x = Math.PI / 2;
+				saturnRing.rotation.y = 0.3; // Slight tilt for visual appeal
+				saturnRing.position.x = SATURN_ORBIT_RADIUS; // Position at Saturn's location
+				saturnOrbitPivot.add(saturnRing); // Attach to orbit pivot so ring doesn't rotate with planet
+
+
+			// --- Uranus ---
+			uranusOrbitPivot = new THREE.Object3D();
+			sun.add(uranusOrbitPivot);
+			const uranusGeometry = new THREE.SphereGeometry(
+				URANUS_RADIUS,
+				64,
+				64
+			);
+			const uranusTexture = textureLoader.load(
+				"textures/2k_uranus.jpg"
+			);
+			const uranusMaterial = new THREE.MeshPhongMaterial({
+				map: uranusTexture,
+				emissiveMap: uranusTexture,
+				emissive: 0xffffff,
+				emissiveIntensity: 0.05,
+				shininess: 0,
+				color: 0xbbbbbb,
+			});
+			uranus = new THREE.Mesh(uranusGeometry, uranusMaterial);
+			uranus.position.x = URANUS_ORBIT_RADIUS;
+			uranus.userData = { type: "uranus" };
+			uranusOrbitPivot.add(uranus);
+
+			// --- Neptune ---
+			neptuneOrbitPivot = new THREE.Object3D();
+			sun.add(neptuneOrbitPivot);
+			const neptuneGeometry = new THREE.SphereGeometry(
+				NEPTUNE_RADIUS,
+				64,
+				64
+			);
+			const neptuneTexture = textureLoader.load(
+				"textures/2k_neptune.jpg"
+			);
+			const neptuneMaterial = new THREE.MeshPhongMaterial({
+				map: neptuneTexture,
+				emissiveMap: neptuneTexture,
+				emissive: 0xffffff,
+				emissiveIntensity: 0.05,
+				shininess: 0,
+				color: 0xbbbbbb,
+			});
+			neptune = new THREE.Mesh(neptuneGeometry, neptuneMaterial);
+			neptune.position.x = NEPTUNE_ORBIT_RADIUS;
+			neptune.userData = { type: "neptune" };
+			neptuneOrbitPivot.add(neptune);
 				// Create orbital paths
 				createOrbitalPaths();
 
@@ -1014,6 +1494,44 @@
 			}
 
 			function createOrbitalPaths() {
+				// Mercury orbital path around Sun
+				const mercuryOrbitGeometry = new THREE.RingGeometry(
+					MERCURY_ORBIT_RADIUS - 0.03,
+					MERCURY_ORBIT_RADIUS + 0.03,
+					64
+				);
+				const mercuryOrbitMaterial = new THREE.MeshBasicMaterial({
+					color: 0x999999,
+					transparent: true,
+					opacity: 0.15,
+					side: THREE.DoubleSide,
+				});
+				const mercuryOrbitPath = new THREE.Mesh(
+					mercuryOrbitGeometry,
+					mercuryOrbitMaterial
+				);
+				mercuryOrbitPath.rotation.x = Math.PI / 2;
+				sun.add(mercuryOrbitPath);
+
+				// Venus orbital path around Sun
+				const venusOrbitGeometry = new THREE.RingGeometry(
+					VENUS_ORBIT_RADIUS - 0.04,
+					VENUS_ORBIT_RADIUS + 0.04,
+					128
+				);
+				const venusOrbitMaterial = new THREE.MeshBasicMaterial({
+					color: 0xffcc99,
+					transparent: true,
+					opacity: 0.12,
+					side: THREE.DoubleSide,
+				});
+				const venusOrbitPath = new THREE.Mesh(
+					venusOrbitGeometry,
+					venusOrbitMaterial
+				);
+				venusOrbitPath.rotation.x = Math.PI / 2;
+				sun.add(venusOrbitPath);
+
 				// Moon orbital path around Earth
 				const moonOrbitGeometry = new THREE.RingGeometry(
 					MOON_ORBIT_RADIUS - 0.02,
@@ -1071,6 +1589,63 @@
 				jupiterOrbitPath.rotation.x = Math.PI / 2;
 				sun.add(jupiterOrbitPath);
 
+				// Saturn orbital path around Sun
+				const saturnOrbitGeometry = new THREE.RingGeometry(
+					SATURN_ORBIT_RADIUS - 0.2,
+					SATURN_ORBIT_RADIUS + 0.2,
+					256
+				);
+				const saturnOrbitMaterial = new THREE.MeshBasicMaterial({
+					color: 0xffd700,
+					transparent: true,
+					opacity: 0.06,
+					side: THREE.DoubleSide,
+				});
+				const saturnOrbitPath = new THREE.Mesh(
+					saturnOrbitGeometry,
+					saturnOrbitMaterial
+				);
+				saturnOrbitPath.rotation.x = Math.PI / 2;
+				sun.add(saturnOrbitPath);
+
+			// Uranus orbital path around Sun
+			const uranusOrbitGeometry = new THREE.RingGeometry(
+				URANUS_ORBIT_RADIUS - 0.4,
+				URANUS_ORBIT_RADIUS + 0.4,
+				256
+			);
+			const uranusOrbitMaterial = new THREE.MeshBasicMaterial({
+				color: 0x4fd0e0,
+				transparent: true,
+				opacity: 0.05,
+				side: THREE.DoubleSide,
+			});
+			const uranusOrbitPath = new THREE.Mesh(
+				uranusOrbitGeometry,
+				uranusOrbitMaterial
+			);
+			uranusOrbitPath.rotation.x = Math.PI / 2;
+			sun.add(uranusOrbitPath);
+
+			// Neptune orbital path around Sun
+			const neptuneOrbitGeometry = new THREE.RingGeometry(
+				NEPTUNE_ORBIT_RADIUS - 0.6,
+				NEPTUNE_ORBIT_RADIUS + 0.6,
+				256
+			);
+			const neptuneOrbitMaterial = new THREE.MeshBasicMaterial({
+				color: 0x4169e1,
+				transparent: true,
+				opacity: 0.04,
+				side: THREE.DoubleSide,
+			});
+			const neptuneOrbitPath = new THREE.Mesh(
+				neptuneOrbitGeometry,
+				neptuneOrbitMaterial
+			);
+			neptuneOrbitPath.rotation.x = Math.PI / 2;
+			sun.add(neptuneOrbitPath);
+
 				// Earth orbital path around Sun
 				const earthOrbitGeometry = new THREE.RingGeometry(
 					SUN_DISTANCE - 0.05,
@@ -1115,6 +1690,16 @@
 						setFocus("sun", sun);
 					});
 				document
+					.getElementById("focus-mercury")
+					.addEventListener("click", () => {
+						setFocus("mercury", mercury);
+					});
+				document
+					.getElementById("focus-venus")
+					.addEventListener("click", () => {
+						setFocus("venus", venus);
+					});
+				document
 					.getElementById("focus-earth")
 					.addEventListener("click", () => {
 						setFocus("earth", earth);
@@ -1133,6 +1718,21 @@
 					.getElementById("focus-jupiter")
 					.addEventListener("click", () => {
 						setFocus("jupiter", jupiter);
+					});
+				document
+					.getElementById("focus-saturn")
+					.addEventListener("click", () => {
+						setFocus("saturn", saturn);
+					});
+				document
+					.getElementById("focus-uranus")
+					.addEventListener("click", () => {
+						setFocus("uranus", uranus);
+					});
+				document
+					.getElementById("focus-neptune")
+					.addEventListener("click", () => {
+						setFocus("neptune", neptune);
 					});
 				document
 					.getElementById("free-roam")
@@ -1212,14 +1812,24 @@
 
 				// Update other planets' emissive intensity
 				if (shadowsEnabled) {
+					mercury.material.emissiveIntensity = 0.06;
+					venus.material.emissiveIntensity = 0.08;
 					moon.material.emissiveIntensity = 0.07;
 					mars.material.emissiveIntensity = 0.06;
 					jupiter.material.emissiveIntensity = 0.05;
+					saturn.material.emissiveIntensity = 0.05;
+					uranus.material.emissiveIntensity = 0.05;
+					neptune.material.emissiveIntensity = 0.05;
 				} else {
 					// Make planets brighter when shadows are off
+					mercury.material.emissiveIntensity = 0.4;
+					venus.material.emissiveIntensity = 0.45;
 					moon.material.emissiveIntensity = 0.4;
 					mars.material.emissiveIntensity = 0.4;
+					uranus.material.emissiveIntensity = 0.3;
+					neptune.material.emissiveIntensity = 0.3;
 					jupiter.material.emissiveIntensity = 0.3;
+					saturn.material.emissiveIntensity = 0.3;
 				}
 			}
 
@@ -1455,10 +2065,15 @@
 				raycaster.setFromCamera(mouse, camera);
 				const intersects = raycaster.intersectObjects([
 					sun,
+					mercury,
+					venus,
 					earth,
 					moon,
 					mars,
 					jupiter,
+					saturn,
+					uranus,
+					neptune,
 				]);
 
 				if (intersects.length > 0) {
@@ -1533,10 +2148,15 @@
 				raycaster.setFromCamera(mouse, camera);
 				const intersects = raycaster.intersectObjects([
 					sun,
+					mercury,
+					venus,
 					earth,
 					moon,
 					mars,
 					jupiter,
+					saturn,
+					uranus,
+					neptune,
 				]);
 
 				if (intersects.length > 0) {
@@ -1732,23 +2352,38 @@
 				const content = document.getElementById("info-content");
 
 				const info = objectInfo[objectType];
-				title.textContent = info.name;
-				content.innerHTML = `
-					<div style="margin-bottom: 10px;">
-						<p><strong>What is it?</strong> ${info.type}</p>
-						<p><strong>How big is it?</strong> ${info.size}</p>
-						<p><strong>How hot or cold?</strong> ${info.temperature}</p>
-						<p><strong>What color is it?</strong> ${info.color}</p>
-						<p><strong>Where is it?</strong> ${info.distance}</p>
-					</div>
-					<div style="background-color: rgba(136, 170, 255, 0.2); padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-						<p><strong>🌟 Cool Fact:</strong> ${info.funFact}</p>
-					</div>
-					<div>
-						<p><strong>Tell me more!</strong></p>
-						<p>${info.description}</p>
-					</div>
-				`;
+			// Get emoji for the title
+			const emojiMap = {
+				'sun': '☀️',
+				'mercury': '☿️',
+				'venus': '♀️',
+				'earth': '🌍',
+				'moon': '🌙',
+				'mars': '♂️',
+				'jupiter': '♃',
+				'saturn': '🪐',
+				'uranus': '🌀',
+				'neptune': '🔵'
+			};
+			
+			title.innerHTML = `<span class="info-icon">${emojiMap[objectType] || '🌟'}</span> ${info.name}`;
+			content.innerHTML = `
+				<div style="margin-bottom: 10px;">
+					<p><strong>🔭 What is it?</strong> ${info.type}</p>
+					<p><strong>📏 How big is it?</strong> ${info.size}</p>
+					<p><strong>🌡️ How hot or cold?</strong> ${info.temperature}</p>
+					<p><strong>🎨 What color is it?</strong> ${info.color}</p>
+					<p><strong>📍 Where is it?</strong> ${info.distance}</p>
+				</div>
+				<div style="background-color: rgba(255, 215, 0, 0.2); padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #FFD700;">
+					<p><strong>✨ Cool Fact:</strong> ${info.funFact}</p>
+				</div>
+				<div style="background-color: rgba(136, 170, 255, 0.15); padding: 10px; border-radius: 8px;">
+					<p><strong>📖 Tell me more!</strong></p>
+					<p>${info.description}</p>
+				</div>
+			`;
+
 
 				panel.style.display = "block";
 			}
@@ -1898,7 +2533,20 @@
 						elapsedTime * timeMultiplier;
 
 					earth.rotateY(EARTH_ROTATION_SPEED * timeMultiplier);
-					moonOrbitPivot.rotateY(EARTH_ORBIT_SPEED * timeMultiplier);
+				moonOrbitPivot.rotateY(MOON_ORBIT_SPEED * timeMultiplier);
+
+					// Mercury animation
+					mercuryOrbitPivot.rotateY(
+						MERCURY_ORBIT_SPEED * timeMultiplier
+					);
+					mercury.rotateY(MERCURY_ROTATION_SPEED * timeMultiplier);
+
+					// Venus animation (retrograde rotation - negative speed)
+					venusOrbitPivot.rotateY(
+						VENUS_ORBIT_SPEED * timeMultiplier
+					);
+					venus.rotateY(VENUS_ROTATION_SPEED * timeMultiplier);
+
 					marsOrbitPivot.rotateY(MARS_ORBIT_SPEED * timeMultiplier);
 					mars.rotateY(MARS_ROTATION_SPEED * timeMultiplier);
 
@@ -1907,6 +2555,24 @@
 						JUPITER_ORBIT_SPEED * timeMultiplier
 					);
 					jupiter.rotateY(JUPITER_ROTATION_SPEED * timeMultiplier);
+
+					// Saturn animation
+					saturnOrbitPivot.rotateY(
+						SATURN_ORBIT_SPEED * timeMultiplier
+					);
+					saturn.rotateY(SATURN_ROTATION_SPEED * timeMultiplier);
+
+					// Uranus animation
+					uranusOrbitPivot.rotateY(
+						URANUS_ORBIT_SPEED * timeMultiplier
+					);
+					uranus.rotateY(URANUS_ROTATION_SPEED * timeMultiplier);
+
+					// Neptune animation
+					neptuneOrbitPivot.rotateY(
+						NEPTUNE_ORBIT_SPEED * timeMultiplier
+					);
+					neptune.rotateY(NEPTUNE_ROTATION_SPEED * timeMultiplier);
 
 					if (starfield) {
 						starfield.rotation.y += 0.00005 * timeMultiplier;
