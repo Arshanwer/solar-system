@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Interactive 3D Solar System</title>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+		/>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+				background-color: #000;
+				font-family: Arial, sans-serif;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+			canvas {
+				display: block;
+			}
+			.info {
+				position: absolute;
+				top: 10px;
+				width: 100%;
+				text-align: center;
+				color: #fff;
+				font-size: 14px;
+				text-shadow: 0 0 4px #000;
+				z-index: 100;
+			}
+			.info a {
+				color: #8af;
+				text-decoration: none;
+			}
+			.info a:hover {
+				text-decoration: underline;
+			}
+			.controls-panel {
+				position: absolute;
+				bottom: 20px;
+				left: 50%;
+				transform: translateX(-50%);
+				z-index: 101;
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: center;
+				gap: 10px;
+			}
+			.controls-panel button {
+				padding: 8px 16px;
+				font-size: 14px;
+				background-color: rgba(0, 0, 0, 0.7);
+				color: white;
+				border: 1px solid white;
+				border-radius: 5px;
+				cursor: pointer;
+				transition: background-color 0.3s;
+			}
+			.controls-panel button:hover {
+				background-color: rgba(255, 255, 255, 0.3);
+			}
+			.controls-panel button.active {
+				background-color: rgba(255, 255, 255, 0.5);
+			}
+
+			/* Zoom Controls */
+			.zoom-controls {
+				position: absolute;
+				top: 20px;
+				right: 20px;
+				z-index: 101;
+				display: flex;
+				flex-direction: column;
+				gap: 5px;
+			}
+			.zoom-controls button {
+				width: 40px;
+				height: 40px;
+				font-size: 18px;
+				background-color: rgba(0, 0, 0, 0.7);
+				color: white;
+				border: 1px solid white;
+				border-radius: 5px;
+				cursor: pointer;
+				transition: background-color 0.3s;
+			}
+			.zoom-controls button:hover {
+				background-color: rgba(255, 255, 255, 0.3);
+			}
+
+			/* Time Controls */
+			.time-controls {
+				position: absolute;
+				top: 20px;
+				left: 20px;
+				z-index: 101;
+				background-color: rgba(0, 0, 0, 0.7);
+				padding: 10px;
+				border-radius: 5px;
+				border: 1px solid white;
+			}
+			.time-controls h4 {
+				margin: 0 0 10px 0;
+				color: white;
+				font-size: 14px;
+			}
+			.time-controls button {
+				padding: 5px 10px;
+				margin: 2px;
+				font-size: 12px;
+				background-color: rgba(0, 0, 0, 0.5);
+				color: white;
+				border: 1px solid #666;
+				border-radius: 3px;
+				cursor: pointer;
+			}
+			.time-controls button:hover {
+				background-color: rgba(255, 255, 255, 0.3);
+			}
+			.time-controls button.active {
+				background-color: rgba(255, 255, 255, 0.5);
+			}
+			.time-display {
+				color: white;
+				font-size: 12px;
+				margin-top: 5px;
+			}
+
+			/* Information Panel */
+			.info-panel {
+				position: absolute;
+				bottom: 120px;
+				left: 20px;
+				width: 300px;
+				background-color: rgba(0, 0, 0, 0.8);
+				color: white;
+				padding: 15px;
+				border-radius: 8px;
+				border: 1px solid white;
+				z-index: 101;
+				display: none;
+				font-size: 14px;
+			}
+			.info-panel h3 {
+				margin: 0 0 10px 0;
+				color: #8af;
+			}
+			.info-panel .close-btn {
+				position: absolute;
+				top: 5px;
+				right: 10px;
+				background: none;
+				border: none;
+				color: white;
+				font-size: 18px;
+				cursor: pointer;
+			}
+			.info-panel .close-btn:hover {
+				color: #8af;
+			}
+
+			/* Distance Indicator */
+			.distance-indicator {
+				position: absolute;
+				bottom: 20px;
+				right: 20px;
+				background-color: rgba(0, 0, 0, 0.7);
+				color: white;
+				padding: 10px;
+				border-radius: 5px;
+				border: 1px solid white;
+				font-size: 12px;
+				z-index: 101;
+			}
+
+			/* Travel Instructions */
+			.travel-instructions {
+				position: absolute;
+				bottom: 80px;
+				left: 50%;
+				transform: translateX(-50%);
+				background-color: rgba(0, 0, 0, 0.7);
+				color: white;
+				padding: 8px 12px;
+				border-radius: 5px;
+				border: 1px solid white;
+				font-size: 12px;
+				z-index: 101;
+				text-align: center;
+			}
+
+			/* Long Press Indicator */
+			.long-press-indicator {
+				position: absolute;
+				pointer-events: none;
+				border: 2px solid #8af;
+				border-radius: 50%;
+				background-color: rgba(136, 170, 255, 0.1);
+				transform: translate(-50%, -50%);
+				z-index: 102;
+				display: none;
+				transition: all 0.1s ease;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="info">
+			Interactive 3D Solar System by a Senior 3D Graphics Programmer<br />
+			Left-click/Tap: Select objects | Right-click/Long-press: Travel to
+			point<br />
+			<small
+				>Note: Distances compressed ~1000x for exploration
+				purposes</small
+			>
+		</div>
+
+		<div class="controls-panel">
+			<button id="focus-sun">Focus on Sun</button>
+			<button id="focus-earth">Focus on Earth</button>
+			<button id="focus-moon">Focus on Moon</button>
+			<button id="focus-mars">Focus on Mars</button>
+			<button id="free-roam">Free Roam</button>
+		</div>
+
+		<div class="zoom-controls">
+			<button id="zoom-in">+</button>
+			<button id="zoom-out">-</button>
+		</div>
+
+		<div class="time-controls">
+			<h4>Time Control</h4>
+			<button id="pause">Pause</button>
+			<button id="slow">0.5x</button>
+			<button id="normal" class="active">1x</button>
+			<button id="fast">2x</button>
+			<button id="faster">5x</button>
+			<div class="time-display">
+				Speed: <span id="speed-display">1x</span>
+			</div>
+		</div>
+
+		<div class="info-panel" id="info-panel">
+			<button class="close-btn" onclick="closeInfoPanel()">×</button>
+			<h3 id="info-title"></h3>
+			<div id="info-content"></div>
+		</div>
+
+		<div class="distance-indicator">
+			<div>Camera Distance: <span id="camera-distance">0</span> AU</div>
+			<div>Target: <span id="camera-target">Free Roam</span></div>
+		</div>
+
+		<!-- Replace the existing travel-instructions div with this updated version: -->
+		<div class="travel-instructions">
+			Desktop: Right-click to travel | Right-click planets to focus (when
+			not in free roam) | Mobile: Long-press to travel
+		</div>
+
+		<div class="long-press-indicator" id="long-press-indicator"></div>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/objects/Lensflare.js"></script>
+
+		<!-- Sun shaders -->
+		<script id="sun-vertex-shader" type="x-shader/x-vertex">
+			varying vec2 vUv;
+			varying vec3 vNormal;
+			void main() {
+				vUv = uv;
+				vNormal = normalize(normalMatrix * normal);
+				gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+			}
+		</script>
+		<script id="sun-fragment-shader" type="x-shader/x-fragment">
+			uniform float uTime;
+			uniform sampler2D uSunTexture;
+			varying vec2 vUv;
+			varying vec3 vNormal;
+
+			vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+			float snoise(vec2 v){ const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439); vec2 i  = floor(v + dot(v, C.yy) ); vec2 x0 = v -   i + dot(i, C.xx); vec2 i1; i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0); vec4 x12 = x0.xyxy + C.xxzz; x12.xy -= i1; i = mod(i, 289.0); vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 )); vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0); m = m*m ; m = m*m ; vec3 x = 2.0 * fract(p * C.www) - 1.0; vec3 h = abs(x) - 0.5; vec3 ox = floor(x + 0.5); vec3 a0 = x - ox; m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h ); vec3 g; g.x  = a0.x  * x0.x  + h.x  * x0.y; g.yz = a0.yz * x12.xz + h.yz * x12.yw; return 130.0 * dot(m, g); }
+
+			float fbm(vec2 st) {
+				float value = 0.0;
+				float amplitude = .5;
+				for (int i = 0; i < 5; i++) {
+					value += amplitude * snoise(st);
+					st *= 2.;
+					amplitude *= .5;
+				}
+				return value;
+			}
+
+			void main() {
+				vec2 distortedUv = vUv;
+				float distortionX = snoise(vUv * 4.0 + uTime * 0.1) * 0.02;
+				float distortionY = snoise(vUv * 4.0 + uTime * 0.1 + vec2(5.2, 3.1)) * 0.02;
+				distortedUv += vec2(distortionX, distortionY);
+				vec3 baseColor = texture2D(uSunTexture, distortedUv).rgb;
+				float hotspotNoise = fbm(vUv * 8.0 + uTime * 0.4);
+				hotspotNoise = smoothstep(0.6, 1.0, hotspotNoise);
+				vec3 finalColor = baseColor + vec3(1.0, 0.9, 0.5) * hotspotNoise;
+				float rim = 1.0 - dot(normalize(vNormal), vec3(0.0, 0.0, 1.0));
+				rim = pow(smoothstep(0.0, 1.0, rim), 2.0);
+				finalColor += vec3(1.0, 0.7, 0.2) * rim * 1.5;
+				gl_FragColor = vec4(finalColor, 1.0);
+			}
+		</script>
+
+		<!-- Earth shaders -->
+		<script id="earth-vertex-shader" type="x-shader/x-vertex">
+			varying vec2 vUv;
+			varying vec3 vWorldNormal;
+			varying vec3 vWorldPosition;
+
+			void main() {
+				vUv = uv;
+				vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+				vWorldPosition = worldPosition.xyz;
+				vWorldNormal = normalize(mat3(modelMatrix) * normal);
+				gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+			}
+		</script>
+		<script id="earth-fragment-shader" type="x-shader/x-fragment">
+			uniform sampler2D uDayTexture;
+			uniform sampler2D uNightTexture;
+			uniform vec3 uSunDirection;
+
+			varying vec2 vUv;
+			varying vec3 vWorldNormal;
+			varying vec3 vWorldPosition;
+
+			void main() {
+				vec3 dayColor = texture2D(uDayTexture, vUv).rgb;
+				vec3 nightColor = texture2D(uNightTexture, vUv).rgb;
+
+				float lightIntensity = dot(vWorldNormal, uSunDirection);
+				float dayNightMixFactor = smoothstep(-0.15, 0.25, lightIntensity);
+
+				vec3 finalColor = mix(nightColor * vec3(1.8, 1.2, 0.7), dayColor, dayNightMixFactor);
+
+				gl_FragColor = vec4(finalColor, 1.0);
+			}
+		</script>
+
+		<script>
+			// Constants
+			const EARTH_RADIUS = 1,
+				EARTH_ROTATION_SPEED = 0.0005,
+				EARTH_ORBIT_SPEED = 0.0002;
+			const MOON_RADIUS = 0.27,
+				MOON_ORBIT_RADIUS = 60; // Fixed from 5 to 60 for realism
+			const MARS_RADIUS = 0.53,
+				MARS_ORBIT_RADIUS = 75,
+				MARS_ROTATION_SPEED = 0.00045,
+				MARS_ORBIT_SPEED = 0.0001;
+			const SUN_RADIUS = 5,
+				SUN_DISTANCE = 50;
+
+			// Scale: 1 unit = 1 AU (Astronomical Unit)
+			const AU_TO_UNITS = 1;
+			const UNITS_TO_AU = 1;
+
+			// Long press configuration
+			const LONG_PRESS_DURATION = 600; // milliseconds
+			const LONG_PRESS_MOVE_THRESHOLD = 10; // pixels
+
+			// Global state variables
+			let scene, camera, renderer, controls, clock, raycaster, mouse;
+			let earth,
+				moon,
+				moonOrbitPivot,
+				sun,
+				mars,
+				marsOrbitPivot,
+				starfield;
+			let timeMultiplier = 1;
+			let isAnimationPaused = false;
+
+			// Long press state
+			let longPressTimer = null;
+			let longPressStartPos = { x: 0, y: 0 };
+			let longPressCurrentPos = { x: 0, y: 0 };
+			let isLongPressing = false;
+			let longPressIndicator = null;
+
+			// Travel system
+			let travelTarget = null;
+			let isTraveling = false;
+			let travelProgress = 0;
+			let travelStartPosition = new THREE.Vector3();
+			let travelStartTarget = new THREE.Vector3();
+			let travelEndPosition = new THREE.Vector3();
+			let travelEndTarget = new THREE.Vector3();
+
+			let focusState = {
+				isTransitioning: false,
+				targetObject: null,
+				targetDistance: 0,
+				currentMode: "free",
+				transitionSpeed: 0.05,
+			};
+
+			// Camera configurations
+			const cameraConfigs = {
+				sun: {
+					distance: 25,
+					minDistance: 15,
+					maxDistance: 100,
+					rotateSpeed: 0.3,
+					zoomSpeed: 0.8,
+				},
+				earth: {
+					distance: 2,
+					minDistance: 3,
+					maxDistance: 30,
+					rotateSpeed: 0.5,
+					zoomSpeed: 1.0,
+				},
+				moon: {
+					distance: 15, // Updated from 1 to 15 due to new orbital distance
+					minDistance: 5, // Updated from 1 to 5
+					maxDistance: 80, // Updated from 15 to 80
+					rotateSpeed: 0.8,
+					zoomSpeed: 1.2,
+				},
+				mars: {
+					distance: 3,
+					minDistance: 2,
+					maxDistance: 25,
+					rotateSpeed: 0.5,
+					zoomSpeed: 1.0,
+				},
+				free: {
+					distance: 50,
+					minDistance: 0.1,
+					maxDistance: 500,
+					rotateSpeed: 0.5,
+					zoomSpeed: 1.0,
+				},
+			};
+
+			// Object information database
+			// Replace the existing objectInfo database with this child-friendly version:
+
+			const objectInfo = {
+				sun: {
+					name: "The Sun ☀️",
+					type: "A Giant Ball of Fire",
+					size: "SO big that 1 million Earths could fit inside!",
+					temperature:
+						"Really, REALLY hot! Much hotter than an oven!",
+					distance: "Right in the middle of our solar system",
+					color: "Yellow and orange like a giant campfire",
+					funFact:
+						"The Sun is like a giant lightbulb that lights up our whole planet!",
+					description:
+						"The Sun is our very own star! It's like a huge ball of fire that gives us light during the day and keeps us warm. Without the Sun, Earth would be dark and cold like a freezer!",
+				},
+				earth: {
+					name: "Earth 🌍",
+					type: "Our Home Planet",
+					size: "Just the right size for us to live on!",
+					temperature: "Not too hot, not too cold - just perfect!",
+					distance: "The perfect distance from the Sun",
+					color: "Blue and green - blue oceans and green forests",
+					funFact:
+						"Earth is the only planet we know of that has animals, plants, and people!",
+					description:
+						"Earth is our amazing home! It has big blue oceans where fish live, green forests where animals play, and lots of different places to explore. It's the only planet we know of that has life!",
+				},
+				moon: {
+					name: "The Moon 🌙",
+					type: "Earth's Best Friend",
+					size: "About 4 times smaller than Earth",
+					temperature: "Very cold at night, very hot during the day",
+					distance: "About 30 Earths away from us",
+					color: "Gray like a big rock, but it glows at night!",
+					funFact:
+						"The Moon changes shape every night! Sometimes it's round, sometimes it's a crescent!",
+					description:
+						"The Moon is Earth's best friend in space! It travels around Earth and lights up our night sky. People have even visited the Moon in spaceships! It has no air, so astronauts need special suits to breathe there.",
+				},
+				mars: {
+					name: "Mars 🔴",
+					type: "The Red Planet",
+					size: "About half the size of Earth",
+					temperature: "Much colder than Earth - like Antarctica!",
+					distance: "Much farther from the Sun than Earth",
+					color: "Red like rust or like a red crayon!",
+					funFact:
+						"Mars is red because it's covered in rusty dust, just like an old bicycle left outside!",
+					description:
+						"Mars is called the Red Planet because it looks red from far away! It's covered in red dust and has the biggest mountain in our whole solar system. Scientists are looking for signs that tiny creatures might have lived there long, long ago!",
+				},
+			};
+
+			function createOrbitalPaths() {
+				// Moon orbital path around Earth
+				const moonOrbitGeometry = new THREE.RingGeometry(
+					MOON_ORBIT_RADIUS - 0.1,
+					MOON_ORBIT_RADIUS + 0.1,
+					64
+				);
+				const moonOrbitMaterial = new THREE.MeshBasicMaterial({
+					color: 0x888888,
+					transparent: true,
+					opacity: 0.3,
+					side: THREE.DoubleSide,
+				});
+				const moonOrbitPath = new THREE.Mesh(
+					moonOrbitGeometry,
+					moonOrbitMaterial
+				);
+				moonOrbitPath.rotation.x = Math.PI / 2; // Rotate to horizontal
+				earth.add(moonOrbitPath);
+
+				// Mars orbital path around Sun
+				const marsOrbitGeometry = new THREE.RingGeometry(
+					MARS_ORBIT_RADIUS - 0.5,
+					MARS_ORBIT_RADIUS + 0.5,
+					128
+				);
+				const marsOrbitMaterial = new THREE.MeshBasicMaterial({
+					color: 0xff6666,
+					transparent: true,
+					opacity: 0.2,
+					side: THREE.DoubleSide,
+				});
+				const marsOrbitPath = new THREE.Mesh(
+					marsOrbitGeometry,
+					marsOrbitMaterial
+				);
+				marsOrbitPath.rotation.x = Math.PI / 2; // Rotate to horizontal
+				sun.add(marsOrbitPath);
+
+				// Earth orbital path around Sun (for reference)
+				const earthOrbitGeometry = new THREE.RingGeometry(
+					SUN_DISTANCE - 0.5,
+					SUN_DISTANCE + 0.5,
+					128
+				);
+				const earthOrbitMaterial = new THREE.MeshBasicMaterial({
+					color: 0x6666ff,
+					transparent: true,
+					opacity: 0.15,
+					side: THREE.DoubleSide,
+				});
+				const earthOrbitPath = new THREE.Mesh(
+					earthOrbitGeometry,
+					earthOrbitMaterial
+				);
+				earthOrbitPath.rotation.x = Math.PI / 2; // Rotate to horizontal
+				sun.add(earthOrbitPath);
+			}
+
+			function init() {
+				scene = new THREE.Scene();
+				clock = new THREE.Clock();
+				raycaster = new THREE.Raycaster();
+				mouse = new THREE.Vector2();
+				longPressIndicator = document.getElementById(
+					"long-press-indicator"
+				);
+
+				camera = new THREE.PerspectiveCamera(
+					60,
+					window.innerWidth / window.innerHeight,
+					0.01,
+					1000
+				);
+				camera.position.set(3, 1, 3);
+
+				renderer = new THREE.WebGLRenderer({ antialias: true });
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer.setPixelRatio(window.devicePixelRatio);
+				document.body.appendChild(renderer.domElement);
+
+				const textureLoader = new THREE.TextureLoader();
+
+				// Create starfield background
+				createStarfield(textureLoader);
+
+				// --- Sun & Lights ---
+				const sunGeometry = new THREE.SphereGeometry(
+					SUN_RADIUS,
+					64,
+					64
+				);
+				const sunMaterial = new THREE.ShaderMaterial({
+					uniforms: {
+						uTime: { value: 0 },
+						uSunTexture: {
+							value: textureLoader.load("textures/2k_sun.jpg"),
+						},
+					},
+					vertexShader:
+						document.getElementById("sun-vertex-shader")
+							.textContent,
+					fragmentShader: document.getElementById(
+						"sun-fragment-shader"
+					).textContent,
+				});
+				sun = new THREE.Mesh(sunGeometry, sunMaterial);
+				sun.position.z = -SUN_DISTANCE;
+				sun.userData = { type: "sun" };
+				scene.add(sun);
+
+				const pointLight = new THREE.PointLight(0xffffff, 1.9, 2000);
+				sun.add(pointLight);
+
+				const ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
+				scene.add(ambientLight);
+
+				// --- Earth ---
+				const earthGeometry = new THREE.SphereGeometry(
+					EARTH_RADIUS,
+					64,
+					64
+				);
+				const earthMaterial = new THREE.ShaderMaterial({
+					vertexShader: document.getElementById("earth-vertex-shader")
+						.textContent,
+					fragmentShader: document.getElementById(
+						"earth-fragment-shader"
+					).textContent,
+					uniforms: {
+						uDayTexture: {
+							value: textureLoader.load(
+								"textures/2k_earth_daymap.jpg"
+							),
+						},
+						uNightTexture: {
+							value: textureLoader.load(
+								"textures/2k_earth_nightmap.jpg"
+							),
+						},
+						uSunDirection: { value: new THREE.Vector3(0, 0, 1) },
+					},
+				});
+				earth = new THREE.Mesh(earthGeometry, earthMaterial);
+				earth.userData = { type: "earth" };
+				scene.add(earth);
+
+				// --- Moon ---
+				moonOrbitPivot = new THREE.Object3D();
+				earth.add(moonOrbitPivot);
+				const moonGeometry = new THREE.SphereGeometry(
+					MOON_RADIUS,
+					32,
+					32
+				);
+				const moonTexture = textureLoader.load("textures/2k_moon.jpg");
+				const moonMaterial = new THREE.MeshPhongMaterial({
+					map: moonTexture,
+					emissiveMap: moonTexture,
+					emissive: 0xffffff,
+					emissiveIntensity: 0.07,
+					shininess: 0,
+					color: 0xbbbbbb,
+				});
+				moon = new THREE.Mesh(moonGeometry, moonMaterial);
+				moon.position.x = MOON_ORBIT_RADIUS;
+				moon.userData = { type: "moon" };
+				moonOrbitPivot.add(moon);
+
+				// --- Mars ---
+				marsOrbitPivot = new THREE.Object3D();
+				sun.add(marsOrbitPivot);
+				const marsGeometry = new THREE.SphereGeometry(
+					MARS_RADIUS,
+					32,
+					32
+				);
+				const marsTexture = textureLoader.load("textures/2k_mars.jpg");
+				const marsMaterial = new THREE.MeshPhongMaterial({
+					map: marsTexture,
+					emissiveMap: marsTexture,
+					emissive: 0xffffff,
+					emissiveIntensity: 0.06,
+					shininess: 0,
+					color: 0xbbbbbb,
+				});
+				mars = new THREE.Mesh(marsGeometry, marsMaterial);
+				mars.position.x = MARS_ORBIT_RADIUS;
+				mars.userData = { type: "mars" };
+				marsOrbitPivot.add(mars);
+
+				createOrbitalPaths();
+				setupControls();
+				setupEventListeners();
+				setFocus("earth", earth);
+
+				window.addEventListener("resize", onWindowResize, false);
+				animate();
+			}
+
+			function createStarfield(textureLoader) {
+				const starGeometry = new THREE.SphereGeometry(800, 32, 32);
+				const starTexture = textureLoader.load(
+					"textures/2k_stars_milky_way.jpg"
+				);
+				const starMaterial = new THREE.MeshBasicMaterial({
+					map: starTexture,
+					side: THREE.BackSide,
+				});
+				starfield = new THREE.Mesh(starGeometry, starMaterial);
+				scene.add(starfield);
+			}
+
+			function setupControls() {
+				controls = new THREE.OrbitControls(camera, renderer.domElement);
+				controls.enableDamping = true;
+				controls.dampingFactor = 0.08;
+				controls.screenSpacePanning = false;
+				controls.maxPolarAngle = Math.PI;
+				controls.minPolarAngle = 0;
+
+				const config = cameraConfigs.free;
+				controls.minDistance = config.minDistance;
+				controls.maxDistance = config.maxDistance;
+				controls.rotateSpeed = config.rotateSpeed;
+				controls.zoomSpeed = config.zoomSpeed;
+				controls.panSpeed = 0.5;
+			}
+
+			function setupEventListeners() {
+				// Focus controls
+				document
+					.getElementById("focus-sun")
+					.addEventListener("click", () => {
+						setFocus("sun", sun);
+					});
+				document
+					.getElementById("focus-earth")
+					.addEventListener("click", () => {
+						setFocus("earth", earth);
+					});
+				document
+					.getElementById("focus-moon")
+					.addEventListener("click", () => {
+						setFocus("moon", moon);
+					});
+				document
+					.getElementById("focus-mars")
+					.addEventListener("click", () => {
+						setFocus("mars", mars);
+					});
+				document
+					.getElementById("free-roam")
+					.addEventListener("click", () => {
+						setFreeRoam();
+					});
+
+				// Zoom controls
+				document
+					.getElementById("zoom-in")
+					.addEventListener("click", () => {
+						zoomCamera(-0.1);
+					});
+				document
+					.getElementById("zoom-out")
+					.addEventListener("click", () => {
+						zoomCamera(0.1);
+					});
+
+				// Time controls
+				document
+					.getElementById("pause")
+					.addEventListener("click", () => setTimeMultiplier(0));
+				document
+					.getElementById("slow")
+					.addEventListener("click", () => setTimeMultiplier(0.5));
+				document
+					.getElementById("normal")
+					.addEventListener("click", () => setTimeMultiplier(1));
+				document
+					.getElementById("fast")
+					.addEventListener("click", () => setTimeMultiplier(2));
+				document
+					.getElementById("faster")
+					.addEventListener("click", () => setTimeMultiplier(5));
+
+				// Mouse events
+				renderer.domElement.addEventListener("click", onMouseClick);
+				renderer.domElement.addEventListener(
+					"contextmenu",
+					onRightClick
+				);
+				renderer.domElement.addEventListener("mousemove", onMouseMove);
+				renderer.domElement.addEventListener("mousedown", onMouseDown);
+				renderer.domElement.addEventListener("mouseup", onMouseUp);
+
+				// Touch events for mobile
+				renderer.domElement.addEventListener(
+					"touchstart",
+					onTouchStart,
+					{ passive: false }
+				);
+				renderer.domElement.addEventListener("touchmove", onTouchMove, {
+					passive: false,
+				});
+				renderer.domElement.addEventListener("touchend", onTouchEnd, {
+					passive: false,
+				});
+
+				// Prevent context menu on right click
+				renderer.domElement.addEventListener("contextmenu", (e) =>
+					e.preventDefault()
+				);
+			}
+
+			// Mouse event handlers
+			function onMouseMove(event) {
+				mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+				mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+			}
+
+			function onMouseDown(event) {
+				if (event.button === 0) {
+					// Left mouse button
+					startLongPress(event.clientX, event.clientY);
+				}
+			}
+
+			function onMouseUp(event) {
+				if (event.button === 0) {
+					// Left mouse button
+					endLongPress();
+				}
+			}
+
+			function onMouseClick(event) {
+				if (event.button === 0) {
+					// Left click - object selection only
+					selectObject(event.clientX, event.clientY);
+				}
+			}
+
+			function onRightClick(event) {
+				event.preventDefault();
+				// Right click - travel to point
+				travelToClickPoint(event.clientX, event.clientY);
+			}
+
+			// Touch event handlers
+			function onTouchStart(event) {
+				event.preventDefault();
+				if (event.touches.length === 1) {
+					const touch = event.touches[0];
+					startLongPress(touch.clientX, touch.clientY);
+				}
+			}
+
+			function onTouchMove(event) {
+				event.preventDefault();
+				if (event.touches.length === 1 && isLongPressing) {
+					const touch = event.touches[0];
+					longPressCurrentPos.x = touch.clientX;
+					longPressCurrentPos.y = touch.clientY;
+
+					// Check if moved too far (cancel long press)
+					const distance = Math.sqrt(
+						Math.pow(
+							longPressCurrentPos.x - longPressStartPos.x,
+							2
+						) +
+							Math.pow(
+								longPressCurrentPos.y - longPressStartPos.y,
+								2
+							)
+					);
+
+					if (distance > LONG_PRESS_MOVE_THRESHOLD) {
+						endLongPress();
+					}
+				}
+			}
+
+			function onTouchEnd(event) {
+				event.preventDefault();
+				if (event.changedTouches.length === 1) {
+					const touch = event.changedTouches[0];
+					if (isLongPressing) {
+						endLongPress();
+					} else {
+						// Regular tap - object selection
+						selectObject(touch.clientX, touch.clientY);
+					}
+				}
+			}
+
+			// Long press functionality
+			function startLongPress(x, y) {
+				longPressStartPos.x = x;
+				longPressStartPos.y = y;
+				longPressCurrentPos.x = x;
+				longPressCurrentPos.y = y;
+				isLongPressing = true;
+
+				// Show long press indicator
+				longPressIndicator.style.left = x + "px";
+				longPressIndicator.style.top = y + "px";
+				longPressIndicator.style.width = "10px";
+				longPressIndicator.style.height = "10px";
+				longPressIndicator.style.display = "block";
+
+				// Animate indicator growth
+				let progress = 0;
+				const animateIndicator = () => {
+					if (!isLongPressing) return;
+
+					progress += 16; // ~60fps
+					const size = 10 + (progress / LONG_PRESS_DURATION) * 40;
+					longPressIndicator.style.width = size + "px";
+					longPressIndicator.style.height = size + "px";
+
+					if (progress < LONG_PRESS_DURATION) {
+						requestAnimationFrame(animateIndicator);
+					}
+				};
+				requestAnimationFrame(animateIndicator);
+
+				// Set timer for long press completion
+				longPressTimer = setTimeout(() => {
+					if (isLongPressing) {
+						completeLongPress();
+					}
+				}, LONG_PRESS_DURATION);
+			}
+
+			function endLongPress() {
+				if (longPressTimer) {
+					clearTimeout(longPressTimer);
+					longPressTimer = null;
+				}
+
+				isLongPressing = false;
+				longPressIndicator.style.display = "none";
+			}
+
+			function completeLongPress() {
+				// Trigger haptic feedback if available
+				if (navigator.vibrate) {
+					navigator.vibrate(50);
+				}
+
+				// Travel to long press point
+				travelToClickPoint(longPressStartPos.x, longPressStartPos.y);
+				endLongPress();
+			}
+
+			function selectObject(clientX, clientY) {
+				mouse.x = (clientX / window.innerWidth) * 2 - 1;
+				mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+
+				raycaster.setFromCamera(mouse, camera);
+				const intersects = raycaster.intersectObjects([
+					sun,
+					earth,
+					moon,
+					mars,
+				]);
+
+				if (intersects.length > 0) {
+					const clickedObject = intersects[0].object;
+					const objectType = clickedObject.userData.type;
+
+					if (objectType && objectInfo[objectType]) {
+						showInfoPanel(objectType);
+					}
+				}
+			}
+
+			// Replace the existing travelToClickPoint function with this updated version:
+
+			function travelToClickPoint(clientX, clientY) {
+				mouse.x = (clientX / window.innerWidth) * 2 - 1;
+				mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+
+				raycaster.setFromCamera(mouse, camera);
+
+				// First check if clicking on an object
+				const intersects = raycaster.intersectObjects([
+					sun,
+					earth,
+					moon,
+					mars,
+				]);
+
+				if (intersects.length > 0) {
+					const clickedObject = intersects[0].object;
+					const objectType = clickedObject.userData.type;
+
+					if (objectType && cameraConfigs[objectType]) {
+						// If NOT in free roam mode, travel to (focus on) the clicked planet
+						if (focusState.currentMode !== "free") {
+							setFocus(objectType, clickedObject);
+							return;
+						}
+						// If in free roam mode, still travel to the planet but don't focus
+						else {
+							const targetPosition = new THREE.Vector3();
+							clickedObject.getWorldPosition(targetPosition);
+
+							// Calculate appropriate distance based on object size
+							const objectRadius =
+								clickedObject.geometry.parameters.radius;
+							const travelDistance = objectRadius * 8; // 8x the radius for good viewing
+
+							const direction = new THREE.Vector3()
+								.subVectors(camera.position, targetPosition)
+								.normalize();
+							const idealPosition = targetPosition
+								.clone()
+								.add(direction.multiplyScalar(travelDistance));
+
+							travelToPoint(idealPosition, targetPosition);
+							return;
+						}
+					}
+				}
+
+				// If no object hit, or in free roam mode clicking empty space, travel to point in space
+				if (focusState.currentMode === "free") {
+					const clickPoint = new THREE.Vector3();
+					const currentDistance = camera.position.distanceTo(
+						controls.target
+					);
+					const travelDistance = Math.min(currentDistance * 2, 100);
+
+					raycaster.ray.at(travelDistance, clickPoint);
+					travelToPoint(clickPoint);
+				}
+			}
+
+			// Update the travelToPoint function to handle optional target parameter:
+
+			function travelToPoint(targetPoint, optionalTarget = null) {
+				if (isTraveling) return;
+
+				isTraveling = true;
+				travelProgress = 0;
+
+				travelStartPosition.copy(camera.position);
+				travelStartTarget.copy(controls.target);
+
+				// Calculate smart travel path
+				const direction = new THREE.Vector3()
+					.subVectors(targetPoint, camera.position)
+					.normalize();
+				const distance = camera.position.distanceTo(targetPoint);
+				const optimalDistance = Math.min(distance * 0.6, 30);
+
+				travelEndPosition
+					.copy(targetPoint)
+					.add(direction.multiplyScalar(-optimalDistance));
+
+				// Use optional target or default to the target point
+				if (optionalTarget) {
+					travelEndTarget.copy(optionalTarget);
+				} else {
+					travelEndTarget.copy(targetPoint);
+				}
+
+				// Disable controls during travel
+				controls.enabled = false;
+			}
+
+			// Also update the completeLongPress function to use the same logic:
+
+			function completeLongPress() {
+				// Trigger haptic feedback if available
+				if (navigator.vibrate) {
+					navigator.vibrate(50);
+				}
+
+				// Travel to long press point using same logic as right-click
+				travelToClickPoint(longPressStartPos.x, longPressStartPos.y);
+				endLongPress();
+			}
+
+			function travelToPoint(targetPoint) {
+				if (isTraveling) return;
+
+				isTraveling = true;
+				travelProgress = 0;
+
+				travelStartPosition.copy(camera.position);
+				travelStartTarget.copy(controls.target);
+
+				// Calculate smart travel path
+				const direction = new THREE.Vector3()
+					.subVectors(targetPoint, camera.position)
+					.normalize();
+				const distance = camera.position.distanceTo(targetPoint);
+				const optimalDistance = Math.min(distance * 0.6, 30);
+
+				travelEndPosition
+					.copy(targetPoint)
+					.add(direction.multiplyScalar(-optimalDistance));
+				travelEndTarget.copy(targetPoint);
+
+				// Disable controls during travel
+				controls.enabled = false;
+			}
+
+			function updateTravelSystem() {
+				if (!isTraveling) return;
+
+				travelProgress += 0.025;
+
+				if (travelProgress >= 1) {
+					travelProgress = 1;
+					isTraveling = false;
+					controls.enabled = true;
+				}
+
+				// Smooth easing function
+				const easeProgress = 1 - Math.pow(1 - travelProgress, 3);
+
+				camera.position.lerpVectors(
+					travelStartPosition,
+					travelEndPosition,
+					easeProgress
+				);
+				controls.target.lerpVectors(
+					travelStartTarget,
+					travelEndTarget,
+					easeProgress
+				);
+			}
+
+			function zoomCamera(delta) {
+				const direction = new THREE.Vector3()
+					.subVectors(camera.position, controls.target)
+					.normalize();
+				const newPosition = camera.position
+					.clone()
+					.add(direction.multiplyScalar(delta * 5));
+
+				// Check distance limits
+				const distance = newPosition.distanceTo(controls.target);
+				if (
+					distance >= controls.minDistance &&
+					distance <= controls.maxDistance
+				) {
+					camera.position.copy(newPosition);
+				}
+			}
+
+			function setTimeMultiplier(multiplier) {
+				timeMultiplier = multiplier;
+				isAnimationPaused = multiplier === 0;
+
+				// Update UI
+				document
+					.querySelectorAll(".time-controls button")
+					.forEach((btn) => {
+						btn.classList.remove("active");
+					});
+
+				const speedText =
+					multiplier === 0 ? "Paused" : `${multiplier}x`;
+				document.getElementById("speed-display").textContent =
+					speedText;
+
+				// Highlight active button
+				if (multiplier === 0)
+					document.getElementById("pause").classList.add("active");
+				else if (multiplier === 0.5)
+					document.getElementById("slow").classList.add("active");
+				else if (multiplier === 1)
+					document.getElementById("normal").classList.add("active");
+				else if (multiplier === 2)
+					document.getElementById("fast").classList.add("active");
+				else if (multiplier === 5)
+					document.getElementById("faster").classList.add("active");
+			}
+
+			function showInfoPanel(objectType) {
+				const panel = document.getElementById("info-panel");
+				const title = document.getElementById("info-title");
+				const content = document.getElementById("info-content");
+
+				const info = objectInfo[objectType];
+				title.textContent = info.name;
+				content.innerHTML = `
+		<div style="margin-bottom: 10px;">
+			<p><strong>What is it?</strong> ${info.type}</p>
+			<p><strong>How big is it?</strong> ${info.size}</p>
+			<p><strong>How hot or cold?</strong> ${info.temperature}</p>
+			<p><strong>What color is it?</strong> ${info.color}</p>
+			<p><strong>Where is it?</strong> ${info.distance}</p>
+		</div>
+		<div style="background-color: rgba(136, 170, 255, 0.2); padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+			<p><strong>🌟 Cool Fact:</strong> ${info.funFact}</p>
+		</div>
+		<div>
+			<p><strong>Tell me more!</strong></p>
+			<p>${info.description}</p>
+		</div>
+	`;
+
+				panel.style.display = "block";
+			}
+
+			function closeInfoPanel() {
+				document.getElementById("info-panel").style.display = "none";
+			}
+
+			// Close info panel function (global)
+			window.closeInfoPanel = closeInfoPanel;
+
+			function setFocus(mode, object) {
+				const config = cameraConfigs[mode];
+
+				focusState.isTransitioning = true;
+				focusState.targetObject = object;
+				focusState.targetDistance = config.distance;
+				focusState.currentMode = mode;
+
+				// Update controls configuration
+				controls.minDistance = config.minDistance;
+				controls.maxDistance = config.maxDistance;
+				controls.rotateSpeed = config.rotateSpeed;
+				controls.zoomSpeed = config.zoomSpeed;
+				controls.panSpeed = 0.3;
+
+				controls.autoRotate = false;
+				updateActiveButton(mode);
+			}
+
+			function setFreeRoam() {
+				const config = cameraConfigs.free;
+
+				focusState.isTransitioning = false;
+				focusState.targetObject = null;
+				focusState.currentMode = "free";
+
+				// Update controls configuration
+				controls.minDistance = config.minDistance;
+				controls.maxDistance = config.maxDistance;
+				controls.rotateSpeed = config.rotateSpeed;
+				controls.zoomSpeed = config.zoomSpeed;
+				controls.panSpeed = 0.8;
+				controls.autoRotate = false;
+
+				updateActiveButton("free-roam");
+			}
+
+			function updateActiveButton(mode) {
+				// Remove active class from all buttons
+				document
+					.querySelectorAll(".controls-panel button")
+					.forEach((btn) => {
+						btn.classList.remove("active");
+					});
+
+				// Add active class to current button
+				const buttonId =
+					mode === "free" ? "free-roam" : `focus-${mode}`;
+				const button = document.getElementById(buttonId);
+				if (button) button.classList.add("active");
+			}
+
+			function updateFocusTransition() {
+				if (!focusState.isTransitioning || !focusState.targetObject)
+					return;
+
+				const targetPosition = new THREE.Vector3();
+				focusState.targetObject.getWorldPosition(targetPosition);
+
+				const currentDirection = new THREE.Vector3()
+					.subVectors(camera.position, controls.target)
+					.normalize();
+
+				if (currentDirection.length() < 0.001) {
+					currentDirection.set(1, 0.5, 1).normalize();
+				}
+
+				const idealPosition = targetPosition
+					.clone()
+					.add(
+						currentDirection.multiplyScalar(
+							focusState.targetDistance
+						)
+					);
+
+				const distanceToTarget =
+					camera.position.distanceTo(idealPosition);
+				const adaptiveSpeed = Math.min(
+					0.1,
+					focusState.transitionSpeed + distanceToTarget * 0.01
+				);
+
+				camera.position.lerp(idealPosition, adaptiveSpeed);
+				controls.target.lerp(targetPosition, adaptiveSpeed);
+
+				const positionThreshold = focusState.targetDistance * 0.05;
+				const targetThreshold =
+					focusState.targetObject.geometry.parameters.radius * 0.1;
+
+				if (
+					camera.position.distanceTo(idealPosition) <
+						positionThreshold &&
+					controls.target.distanceTo(targetPosition) < targetThreshold
+				) {
+					focusState.isTransitioning = false;
+				}
+			}
+
+			function updateTrackingMode() {
+				if (!focusState.targetObject || focusState.isTransitioning)
+					return;
+
+				const targetPosition = new THREE.Vector3();
+				focusState.targetObject.getWorldPosition(targetPosition);
+
+				controls.target.lerp(targetPosition, 0.02);
+			}
+
+			function updateDistanceIndicator() {
+				const distance = camera.position.distanceTo(controls.target);
+				const distanceInAU = (distance * UNITS_TO_AU).toFixed(2);
+
+				document.getElementById("camera-distance").textContent =
+					distanceInAU;
+
+				let targetName = "Free Roam";
+				if (focusState.targetObject) {
+					const objectType = focusState.targetObject.userData.type;
+					if (objectType && objectInfo[objectType]) {
+						targetName = objectInfo[objectType].name;
+					}
+				}
+				document.getElementById("camera-target").textContent =
+					targetName;
+			}
+
+			function animate() {
+				requestAnimationFrame(animate);
+				const elapsedTime = clock.getElapsedTime();
+				const delta = clock.getDelta();
+
+				// Apply time multiplier to animations
+				if (!isAnimationPaused) {
+					const adjustedDelta = delta * timeMultiplier;
+
+					// Update sun shader
+					sun.material.uniforms.uTime.value =
+						elapsedTime * timeMultiplier;
+
+					// Rotate planets and moons
+					earth.rotateY(EARTH_ROTATION_SPEED * timeMultiplier);
+					moonOrbitPivot.rotateY(EARTH_ORBIT_SPEED * timeMultiplier);
+					marsOrbitPivot.rotateY(MARS_ORBIT_SPEED * timeMultiplier);
+					mars.rotateY(MARS_ROTATION_SPEED * timeMultiplier);
+
+					// Slowly rotate starfield
+					if (starfield) {
+						starfield.rotation.y += 0.00005 * timeMultiplier;
+					}
+				}
+
+				// Update sun direction for Earth shader
+				const sunWorldPosition = new THREE.Vector3();
+				sun.getWorldPosition(sunWorldPosition);
+				const earthWorldPosition = new THREE.Vector3();
+				earth.getWorldPosition(earthWorldPosition);
+				const sunDirection = new THREE.Vector3()
+					.subVectors(sunWorldPosition, earthWorldPosition)
+					.normalize();
+				earth.material.uniforms.uSunDirection.value = sunDirection;
+
+				// Update camera systems
+				updateFocusTransition();
+				updateTrackingMode();
+				updateTravelSystem();
+				updateDistanceIndicator();
+
+				controls.update();
+				renderer.render(scene, camera);
+			}
+
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+
+			init();
+		</script>
+	</body>
+</html>

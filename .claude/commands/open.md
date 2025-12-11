@@ -1,0 +1,1 @@
+Open solar.html in the default browser to view the interactive 3D solar system visualization

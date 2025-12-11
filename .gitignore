@@ -1,0 +1,10 @@
+# Claude Code
+.claude/plans/
+.claude/cache/
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
