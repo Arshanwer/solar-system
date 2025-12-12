@@ -4,7 +4,9 @@
       "Bash(python3:*)",
       "Bash(open:*)",
       "Bash(cat:*)",
-      "Bash(ed -s:*)"
+      "Bash(ed -s:*)",
+      "Bash(mkdir:*)",
+      "Bash(curl:*)"
     ]
   }
 }
