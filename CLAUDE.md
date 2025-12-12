@@ -14,11 +14,12 @@ Interactive 3D solar system visualization built with Three.js r128. This is an e
 - Realistic Milky Way starfield background
 
 **Technology Stack:**
-- Three.js r128 (WebGL rendering)
+- Three.js r128 (WebGL rendering) - **Downloaded locally for 100% offline operation**
 - Custom GLSL shaders for Sun and Earth
 - OrbitControls for camera manipulation
 - Single-page HTML application (no build system)
 - Child-friendly UI with colorful emojis and gradients
+- **Fully offline capable** - no CDN dependencies
 
 ## Running the Application
 
@@ -93,7 +94,22 @@ Scene
    - Pause/resume capability
    - Delta-time based physics
 
-7. **Child-Friendly UI System**: Kid-optimized interface
+7. **Day/Night Demo Mode**: Educational Earth visualization
+   - Toggle button in Visual Options
+   - Instantly shows Earth's night side (city lights texture)
+   - Simple on/off toggle without camera movement
+   - Demonstrates day/night concept for educational purposes
+
+8. **Planet Trails System**: Visual orbital path tracking
+   - Colorful trails behind all orbiting planets (Mercury-Neptune + Moon)
+   - 1000-point trail history per planet
+   - Real-time updates every frame
+   - Trails auto-clear when changing time speed
+   - Toggle button to show/hide all trails
+   - Each planet has unique color matching its button gradient
+   - Moon trail shows beautiful spiral pattern combining Earth orbit + Moon orbit
+
+9. **Child-Friendly UI System**: Kid-optimized interface
    - Colorful planet buttons with planet-specific gradient colors
    - Large emoji icons for each celestial body
    - Fun time controls (🐌 Slow, ▶️ Normal, ⏩ Fast, ⚡ Super Fast)
@@ -154,6 +170,14 @@ Control state:
 - `timeMultiplier` (0, 0.5, 1, 2, 5)
 - `isAnimationPaused` (boolean)
 - `shadowsEnabled` (boolean)
+- `isDemoActive` (boolean) - Day/Night Demo mode
+- `trailsEnabled` (boolean) - Planet trails visibility
+
+Trail system state:
+- `trailData` (object) - Stores geometry, material, and line objects for each planet trail
+- `maxTrailPoints` (1000) - Number of positions tracked per trail
+- `trailUpdateInterval` (1) - Update every frame
+- `frameCounter` - Frame counting for trail updates
 
 Interaction state:
 - Travel system state
@@ -173,13 +197,23 @@ Interaction state:
 
 ### Core Functions
 
-- `init()` ([solar.html:1154+](solar.html#L1154)): Scene setup, planet creation, event listeners
-- `animate()` ([solar.html:2524+](solar.html#L2524)): Main render loop with time-based updates for all 8 planets
-- `setFocus(mode, object)` ([solar.html:2397+](solar.html#L2397)): Camera focus transitions
-- `showInfoPanel(objectType)` ([solar.html:2349+](solar.html#L2349)): Display planet information with emoji icons
+**Scene & Animation:**
+- `init()`: Scene setup, planet creation, event listeners, trail initialization
+- `animate()`: Main render loop with time-based updates for all 8 planets + trail updates
+- `initPlanetTrails()`: Create trail geometry and materials for each planet
+- `updatePlanetTrails()`: Update trail positions every frame when enabled
+
+**Camera & Interaction:**
+- `setFocus(mode, object)`: Camera focus transitions
 - `travelToClickPoint(x, y)`: Interactive camera movement
 - `handleInfoRequest(x, y)`: Raycasting and info panel triggering
+
+**UI Controls:**
+- `showInfoPanel(objectType)`: Display planet information with emoji icons
 - `toggleShadows()`: Enable/disable realistic lighting
+- `toggleDayNightDemo()`: Toggle Earth night texture demonstration
+- `togglePlanetTrails()`: Show/hide orbital trails for all planets
+- `setTimeMultiplier(multiplier)`: Change animation speed (also clears trails)
 
 ### Child-Friendly UI Components
 
@@ -196,6 +230,13 @@ Interaction state:
 - ⏩ Fast (2x)
 - ⚡ Super Fast (5x)
 - ⏸️ Pause
+- **Note**: Changing speed automatically clears all planet trails for fresh visualization
+
+**Visual Options Panel:**
+- ☀️ Realistic Lighting toggle (shadows on/off)
+- 🌍 Day/Night Demo button (toggle Earth night texture)
+- 🔍+ / 🔍- Zoom buttons (camera zoom in/out)
+- ✨ Show/Hide Trails button (toggle orbital paths)
 
 **Info Panel Enhancements:**
 - Planet emoji in title
@@ -224,6 +265,15 @@ Interaction state:
 6. Add educational info to `objectInfo`
 7. Add focus button to HTML
 8. Update CLAUDE.md with new planet
+
+### Library Dependencies (Offline)
+
+All Three.js libraries are stored locally in `js/lib/` for offline operation:
+- `three.min.js` - Three.js r128 core library (589KB)
+- `OrbitControls.js` - Camera orbit controls (26KB)
+- `Lensflare.js` - Lens flare effects (8.9KB)
+
+**No internet connection required** - all dependencies are local.
 
 ### Texture Dependencies
 
@@ -267,9 +317,12 @@ Planet button gradients (matching actual planet appearance):
 
 ## Important Notes
 
+- **100% Offline**: All Three.js libraries downloaded locally in `js/lib/` - no CDN dependencies
 - **CORS Issues**: File must be served via HTTP server, not opened directly (file://)
 - **Orbital Accuracy**: All orbital speeds are astronomically accurate relative to Earth's 365-day year
 - **Moon Behavior**: Moon orbits Earth, not the Sun (moonOrbitPivot is child of Earth system)
 - **Saturn Rings**: Use transparent texture with alpha channel for realistic appearance
 - **Performance**: Single-file design keeps everything simple but file is large (2,600+ lines)
 - **Child-Friendly Design**: UI optimized for ages 6-12, especially on iPad
+- **Earth Position**: Earth is stationary (reference point) - it does not orbit, so it has no trail
+- **Trail System**: Trails auto-clear when changing time speed for clean visualization at new speeds
